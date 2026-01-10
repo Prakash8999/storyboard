@@ -60,7 +60,7 @@ export function SceneList({ projectId, activeSceneId, onSelectScene }: { project
                 {scenes.length === 0 && (
                     <div className="flex flex-col items-center justify-center h-32 text-center p-4 text-xs text-muted-foreground border border-dashed rounded-md m-2">
                         <p>No scenes found.</p>
-                        <Button variant="link" onClick={addScene} className="h-auto p-0 text-primary">Create one</Button>
+                        <Button variant="default" onClick={addScene} className="h-auto p-0 text-primary">Create one</Button>
                     </div>
                 )}
             </div>

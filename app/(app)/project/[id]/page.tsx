@@ -9,8 +9,9 @@ import { ScriptEditor } from "@/components/project/ScriptEditor";
 import { SceneList } from "@/components/project/SceneList";
 import { ShotList } from "@/components/project/ShotList";
 import { ProjectIdea } from "@/components/project/ProjectIdea";
+import { ScreenplayEditor } from "@/components/project/ScreenplayEditor";
 import { StoryboardGrid } from "@/components/project/StoryboardGrid";
-import { ArrowLeft, LayoutGrid, List, PanelLeft, Columns, BookText, Clapperboard } from "lucide-react";
+import { ArrowLeft, LayoutGrid, List, PanelLeft, Columns, BookText, Clapperboard, ScrollText } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -23,7 +24,7 @@ export default function ProjectPage() {
     const [activeSceneId, setActiveSceneId] = useState<string | null>(null);
 
     // Panel Visibility State
-    const [visiblePanels, setVisiblePanels] = useState<string[]>(['idea', 'script', 'scenes']);
+    const [visiblePanels, setVisiblePanels] = useState<string[]>(['idea', 'script', 'screenplay', 'scenes']);
 
     useEffect(() => {
         if (!id) return;
@@ -39,6 +40,7 @@ export default function ProjectPage() {
 
     const showIdea = visiblePanels.includes('idea');
     const showScript = visiblePanels.includes('script');
+    const showScreenplay = visiblePanels.includes('screenplay');
     const showScenes = visiblePanels.includes('scenes');
 
     // Dynamic grid template columns
@@ -46,6 +48,7 @@ export default function ProjectPage() {
         let parts = [];
         if (showIdea) parts.push("minmax(300px, 1fr)");
         if (showScript) parts.push("minmax(400px, 1.5fr)");
+        if (showScreenplay) parts.push("minmax(500px, 2fr)");
         if (showScenes) parts.push("minmax(600px, 2fr)"); // Increased min-width for Master-Detail
         // Fallback if nothing selected (should prevent empty state but good safety)
         if (parts.length === 0) return "1fr";
@@ -54,7 +57,7 @@ export default function ProjectPage() {
 
     return (
         <div className="h-[calc(100vh-4rem)] flex flex-col">
-            <div className="flex items-center justify-between py-2 border-b mb-2 px-4 flex-wrap gap-2">
+            <div className="flex items-center justify-between py-2 border-b mb-2 px-4 flex-wrap gap-2 text-sm">
                 <div className="flex items-center gap-2 md:gap-4 shrink-0">
                     <Link href="/dashboard"><Button variant="ghost" size="icon"><ArrowLeft className="h-4 w-4" /></Button></Link>
                     <div>
@@ -66,13 +69,16 @@ export default function ProjectPage() {
 
                 {/* View Toggles */}
                 {view === 'workspace' && (
-                    <div className="flex-1 flex justify-center order-3 md:order-2 w-full md:w-auto">
-                        <ToggleGroup type="multiple" value={visiblePanels} onValueChange={(val) => { if (val.length > 0) setVisiblePanels(val) }} className="bg-muted/30 p-1 rounded-lg border gap-1">
+                    <div className="flex-1 flex justify-center order-3 md:order-2 w-full md:w-auto overflow-x-auto">
+                        <ToggleGroup type="multiple" value={visiblePanels} onValueChange={(val) => { if (val.length > 0) setVisiblePanels(val) }} className="bg-muted/30 p-1 rounded-lg border gap-1 shrink-0">
                             <ToggleGroupItem value="idea" aria-label="Toggle Idea" className="px-3 data-[state=on]:bg-blue-100 data-[state=on]:text-blue-700 dark:data-[state=on]:bg-blue-900/30 dark:data-[state=on]:text-blue-300 shadow-none hover:bg-muted/50 transition-all border border-transparent data-[state=on]:border-blue-200 dark:data-[state=on]:border-blue-800">
                                 <PanelLeft className="h-4 w-4 mr-2" /> Idea
                             </ToggleGroupItem>
                             <ToggleGroupItem value="script" aria-label="Toggle Script" className="px-3 data-[state=on]:bg-blue-100 data-[state=on]:text-blue-700 dark:data-[state=on]:bg-blue-900/30 dark:data-[state=on]:text-blue-300 shadow-none hover:bg-muted/50 transition-all border border-transparent data-[state=on]:border-blue-200 dark:data-[state=on]:border-blue-800">
                                 <BookText className="h-4 w-4 mr-2" /> Script
+                            </ToggleGroupItem>
+                            <ToggleGroupItem value="screenplay" aria-label="Toggle Screenplay" className="px-3 data-[state=on]:bg-blue-100 data-[state=on]:text-blue-700 dark:data-[state=on]:bg-blue-900/30 dark:data-[state=on]:text-blue-300 shadow-none hover:bg-muted/50 transition-all border border-transparent data-[state=on]:border-blue-200 dark:data-[state=on]:border-blue-800">
+                                <ScrollText className="h-4 w-4 mr-2" /> Screenplay
                             </ToggleGroupItem>
                             <ToggleGroupItem value="scenes" aria-label="Toggle Scenes" className="px-3 data-[state=on]:bg-blue-100 data-[state=on]:text-blue-700 dark:data-[state=on]:bg-blue-900/30 dark:data-[state=on]:text-blue-300 shadow-none hover:bg-muted/50 transition-all border border-transparent data-[state=on]:border-blue-200 dark:data-[state=on]:border-blue-800">
                                 <Clapperboard className="h-4 w-4 mr-2" /> Scenes
@@ -81,7 +87,7 @@ export default function ProjectPage() {
                     </div>
                 )}
 
-                <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg shrink-0 order-2 md:order-3">
+                <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg shrink-0 order-2 md:order-3 hidden md:flex">
                     <Button variant={view === 'workspace' ? 'secondary' : 'ghost'} size="sm" onClick={() => setView('workspace')} className="gap-2 h-8 text-xs px-2 md:px-4">
                         <Columns className="h-3 w-3 md:h-4 md:w-4" /> <span className="hidden md:inline">Workspace</span>
                     </Button>
@@ -118,7 +124,16 @@ export default function ProjectPage() {
                             </div>
                         )}
 
-                        {/* Col 3: Scenes + Details */}
+                        {/* Col 3: Screenplay */}
+                        {showScreenplay && (
+                            <div className="border rounded-xl shadow-sm overflow-hidden bg-background h-full min-w-0 flex flex-col">
+                                <div className="flex-1 overflow-y-auto px-0 h-full">
+                                    <ScreenplayEditor projectId={id as string} activeSceneId={activeSceneId} onSelectScene={setActiveSceneId} />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Col 4: Scenes + Details */}
                         {showScenes && (
                             <div className="border rounded-xl shadow-sm overflow-hidden bg-background h-full min-w-0 flex flex-col">
                                 { /* Scenes Panel Content - Master/Detail Layout */}

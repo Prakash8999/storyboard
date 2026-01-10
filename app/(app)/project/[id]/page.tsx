@@ -46,7 +46,7 @@ export default function ProjectPage() {
         let parts = [];
         if (showIdea) parts.push("minmax(300px, 1fr)");
         if (showScript) parts.push("minmax(400px, 1.5fr)");
-        if (showScenes) parts.push("minmax(350px, 1.2fr)");
+        if (showScenes) parts.push("minmax(600px, 2fr)"); // Increased min-width for Master-Detail
         // Fallback if nothing selected (should prevent empty state but good safety)
         if (parts.length === 0) return "1fr";
         return parts.join(" ");
@@ -121,29 +121,42 @@ export default function ProjectPage() {
                         {/* Col 3: Scenes + Details */}
                         {showScenes && (
                             <div className="border rounded-xl shadow-sm overflow-hidden bg-background h-full min-w-0 flex flex-col">
-                                {!activeSceneId ? (
-                                    <div className="h-full flex flex-col">
-                                        <div className="flex-none p-2 border-b bg-background">
-                                            <h3 className="font-semibold text-sm">All Scenes</h3>
-                                        </div>
+                                { /* Scenes Panel Content - Master/Detail Layout */}
+                                <div className="h-full flex flex-row overflow-hidden">
+                                    {/* List Panel - Hidden on mobile if editing, visible on desktop always */}
+                                    <div className={cn(
+                                        "flex flex-col bg-muted/20 border-r transition-all duration-300",
+                                        activeSceneId ? "hidden md:flex md:w-60 lg:w-72 shrink-0" : "w-full"
+                                    )}>
+                                        {/* Header handled by SceneList */}
                                         <div className="flex-1 overflow-y-auto">
                                             <SceneList projectId={id as string} activeSceneId={activeSceneId} onSelectScene={setActiveSceneId} />
                                         </div>
                                     </div>
-                                ) : (
-                                    <div className="h-full flex flex-col">
-                                        <div className="flex-none p-2 border-b bg-background flex items-center gap-2">
-                                            <Button variant="ghost" size="sm" onClick={() => setActiveSceneId(null)}>
-                                                <ArrowLeft className="h-4 w-4 mr-1" /> Scenes
-                                            </Button>
-                                            <span className="text-sm font-medium text-muted-foreground">|</span>
-                                            <span className="text-sm truncate font-semibold">Editing Scene</span>
+
+                                    {/* Detail Panel - Shows ShotList when scene selected */}
+                                    {activeSceneId ? (
+                                        <div className="flex-1 flex flex-col min-w-0 bg-background h-full animate-in fade-in slide-in-from-right-4 duration-300">
+                                            <div className="flex-none p-2 border-b bg-background/95 backdrop-blur flex items-center gap-2 md:hidden">
+                                                <Button variant="ghost" size="sm" onClick={() => setActiveSceneId(null)}>
+                                                    <ArrowLeft className="h-4 w-4 mr-1" /> Back
+                                                </Button>
+                                                <span className="text-sm font-medium text-muted-foreground">|</span>
+                                                <span className="text-sm truncate font-semibold">Editing Scene</span>
+                                            </div>
+                                            <div className="flex-1 overflow-y-auto overflow-x-hidden p-0">
+                                                <ShotList projectId={id as string} sceneId={activeSceneId} />
+                                            </div>
                                         </div>
-                                        <div className="flex-1 overflow-y-auto bg-background">
-                                            <ShotList projectId={id as string} sceneId={activeSceneId} />
+                                    ) : (
+                                        <div className="hidden md:flex flex-1 items-center justify-center p-8 text-muted-foreground bg-muted/5">
+                                            <div className="text-center space-y-2">
+                                                <Clapperboard className="h-12 w-12 mx-auto opacity-20" />
+                                                <p>Select a scene from the list to view shots</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
+                                </div>
                             </div>
                         )}
                     </div>

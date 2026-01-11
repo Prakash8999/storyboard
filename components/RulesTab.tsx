@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Save, History, Edit2, ChevronLeft, List } from "lucide-react";
+import { Plus, Save, History, Edit2, ChevronLeft, List, Copy, Check } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,6 +43,7 @@ export function RulesTab() {
     const [selectedRuleId, setSelectedRuleId] = useState<string | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
+    const [isCopied, setIsCopied] = useState(false);
 
     // Edit form state
     const [editTitle, setEditTitle] = useState("");
@@ -178,6 +179,14 @@ export function RulesTab() {
         return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
+    const handleCopy = () => {
+        if (!currentDisplayVersion) return;
+        const textToCopy = `${currentDisplayVersion.title}\n\n${currentDisplayVersion.description}`;
+        navigator.clipboard.writeText(textToCopy);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+    };
+
     return (
         <div className="flex h-[calc(100vh-140px)] gap-6 animate-in fade-in-50">
             {/* Left Sidebar: Rule List */}
@@ -267,6 +276,16 @@ export function RulesTab() {
                                                 ))}
                                             </select>
                                         </div>
+
+                                        <Button
+                                            onClick={handleCopy}
+                                            variant="ghost"
+                                            size="sm"
+                                            className="text-muted-foreground hover:text-foreground"
+                                        >
+                                            {isCopied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                                            {isCopied ? "Copied" : "Copy"}
+                                        </Button>
 
                                         {isLatestVersion && (
                                             <Button onClick={handleEditStart} variant="secondary" size="sm" className="shadow-sm">

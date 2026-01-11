@@ -11,7 +11,8 @@ import { ShotList } from "@/components/project/ShotList";
 import { ProjectIdea } from "@/components/project/ProjectIdea";
 import { ScreenplayEditor } from "@/components/project/ScreenplayEditor";
 import { StoryboardGrid } from "@/components/project/StoryboardGrid";
-import { ArrowLeft, LayoutGrid, List, PanelLeft, Columns, BookText, Clapperboard, ScrollText } from "lucide-react";
+import { TaskList } from "@/components/project/TaskList";
+import { ArrowLeft, LayoutGrid, List, PanelLeft, Columns, BookText, Clapperboard, ScrollText, CheckSquare } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -23,8 +24,8 @@ export default function ProjectPage() {
     const [view, setView] = useState<'workspace' | 'storyboard'>('workspace');
     const [activeSceneId, setActiveSceneId] = useState<string | null>(null);
 
-    // Panel Visibility State
-    const [visiblePanels, setVisiblePanels] = useState<string[]>(['idea', 'script', 'screenplay', 'scenes']);
+    // Panel Visibility State - Default to only 'task' as requested
+    const [visiblePanels, setVisiblePanels] = useState<string[]>(['task']);
 
     useEffect(() => {
         if (!id) return;
@@ -42,6 +43,7 @@ export default function ProjectPage() {
     const showScript = visiblePanels.includes('script');
     const showScreenplay = visiblePanels.includes('screenplay');
     const showScenes = visiblePanels.includes('scenes');
+    const showTask = visiblePanels.includes('task');
 
     // Dynamic grid template columns
     const getGridTemplate = () => {
@@ -49,7 +51,9 @@ export default function ProjectPage() {
         if (showIdea) parts.push("minmax(300px, 1fr)");
         if (showScript) parts.push("minmax(400px, 1.5fr)");
         if (showScreenplay) parts.push("minmax(500px, 2fr)");
-        if (showScenes) parts.push("minmax(600px, 2fr)"); // Increased min-width for Master-Detail
+        if (showScenes) parts.push("minmax(600px, 2fr)");
+        if (showTask) parts.push("minmax(300px, 1fr)");
+
         // Fallback if nothing selected (should prevent empty state but good safety)
         if (parts.length === 0) return "1fr";
         return parts.join(" ");
@@ -73,6 +77,9 @@ export default function ProjectPage() {
                         <ToggleGroup type="multiple" value={visiblePanels} onValueChange={(val) => { if (val.length > 0) setVisiblePanels(val) }} className="bg-muted/30 p-1 rounded-lg border gap-1 shrink-0">
                             <ToggleGroupItem value="idea" aria-label="Toggle Idea" className="px-3 data-[state=on]:bg-blue-100 data-[state=on]:text-blue-700 dark:data-[state=on]:bg-blue-900/30 dark:data-[state=on]:text-blue-300 shadow-none hover:bg-muted/50 transition-all border border-transparent data-[state=on]:border-blue-200 dark:data-[state=on]:border-blue-800">
                                 <PanelLeft className="h-4 w-4 mr-2" /> Idea
+                            </ToggleGroupItem>
+                            <ToggleGroupItem value="task" aria-label="Toggle Tasks" className="px-3 data-[state=on]:bg-blue-100 data-[state=on]:text-blue-700 dark:data-[state=on]:bg-blue-900/30 dark:data-[state=on]:text-blue-300 shadow-none hover:bg-muted/50 transition-all border border-transparent data-[state=on]:border-blue-200 dark:data-[state=on]:border-blue-800">
+                                <CheckSquare className="h-4 w-4 mr-2" /> Tasks
                             </ToggleGroupItem>
                             <ToggleGroupItem value="script" aria-label="Toggle Script" className="px-3 data-[state=on]:bg-blue-100 data-[state=on]:text-blue-700 dark:data-[state=on]:bg-blue-900/30 dark:data-[state=on]:text-blue-300 shadow-none hover:bg-muted/50 transition-all border border-transparent data-[state=on]:border-blue-200 dark:data-[state=on]:border-blue-800">
                                 <BookText className="h-4 w-4 mr-2" /> Script
@@ -106,11 +113,20 @@ export default function ProjectPage() {
                             display: 'grid'
                         }}
                     >
-                        {/* Col 1: Idea */}
+                        {/* Col 0: Idea */}
                         {showIdea && (
                             <div className="border rounded-xl shadow-sm overflow-hidden bg-background h-full min-w-0 flex flex-col">
                                 <div className="flex-1 overflow-y-auto">
                                     <ProjectIdea project={project} />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Col 1: Tasks */}
+                        {showTask && (
+                            <div className="border rounded-xl shadow-sm overflow-hidden bg-background h-full min-w-0 flex flex-col">
+                                <div className="flex-1 overflow-hidden h-full p-0">
+                                    <TaskList project={project} />
                                 </div>
                             </div>
                         )}
@@ -184,3 +200,4 @@ export default function ProjectPage() {
         </div>
     );
 }
+

@@ -9,8 +9,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, LayoutTemplate, BookText, Trash2, AlertTriangle } from "lucide-react";
+import { CalendarDays, LayoutTemplate, BookText, Trash2, AlertTriangle, Lightbulb } from "lucide-react";
 import { RulesTab } from "@/components/RulesTab";
+import { TopicListTab } from "@/components/TopicListTab";
 import { cn } from "@/lib/utils";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Modal } from "@/components/ui/modal";
@@ -36,9 +37,9 @@ export default function DashboardPage() {
 
     // Derive initial tab from URL or default to 'projects'
     const currentTab = searchParams.get('tab');
-    const activeTab = (currentTab === 'rules' ? 'rules' : 'projects') as 'projects' | 'rules';
+    const activeTab = (currentTab === 'rules' ? 'rules' : currentTab === 'topics' ? 'topics' : 'projects') as 'projects' | 'rules' | 'topics';
 
-    const setActiveTab = (tab: 'projects' | 'rules') => {
+    const setActiveTab = (tab: 'projects' | 'rules' | 'topics') => {
         const params = new URLSearchParams(searchParams);
         params.set('tab', tab);
         router.push(`${pathname}?${params.toString()}`);
@@ -83,7 +84,7 @@ export default function DashboardPage() {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-6 border-b pb-6">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-                    <p className="text-muted-foreground mt-1">Manage your video projects and production rules.</p>
+                    <p className="text-muted-foreground mt-1">Manage your video projects, production rules, and topic ideas.</p>
                 </div>
 
                 <div className="flex items-center p-1 bg-muted/50 rounded-lg border border-border/50">
@@ -110,6 +111,18 @@ export default function DashboardPage() {
                     >
                         <BookText className="w-4 h-4" />
                         Rules Library
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('topics')}
+                        className={cn(
+                            "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
+                            activeTab === 'topics'
+                                ? "bg-background text-foreground shadow-sm ring-1 ring-border/50"
+                                : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                        )}
+                    >
+                        <Lightbulb className="w-4 h-4" />
+                        Topic List Ideas
                     </button>
                 </div>
             </div>
@@ -167,8 +180,10 @@ export default function DashboardPage() {
                             </div>
                         )}
                     </div>
-                ) : (
+                ) : activeTab === 'rules' ? (
                     <RulesTab />
+                ) : (
+                    <TopicListTab />
                 )}
             </div>
 
